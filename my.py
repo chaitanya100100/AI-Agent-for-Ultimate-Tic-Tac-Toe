@@ -8,6 +8,7 @@ class MyPlayer():
 
 
     def __init__(self):
+        self.deepcopy = copy.deepcopy
         pass
 
     def get_revflag(self, flag):
@@ -64,52 +65,53 @@ class MyPlayer():
     """
 
     def play_move(self, new_move, ply):
-	self.board_status[new_move[0]][new_move[1]] = ply
-	x = new_move[0]/4
-	y = new_move[1]/4
-	bs = self.board_status
+        self.board_status[new_move[0]][new_move[1]] = ply
+        x = new_move[0]/4
+        y = new_move[1]/4
+        bs = self.board_status
 
-	for i in xrange(4):
-        	if (bs[4*x+i][4*y] == bs[4*x+i][4*y+1] == bs[4*x+i][4*y+2] == bs[4*x+i][4*y+3]) and (bs[4*x+i][4*y] == ply):
-			self.block_status[x][y] = ply
-			return
-		if (bs[4*x][4*y+i] == bs[4*x+1][4*y+i] == bs[4*x+2][4*y+i] == bs[4*x+3][4*y+i]) and (bs[4*x][4*y+i] == ply):
-			self.block_status[x][y] = ply
-	                return
+        for i in xrange(4):
+    	    if (bs[4*x+i][4*y] == bs[4*x+i][4*y+1] == bs[4*x+i][4*y+2] == bs[4*x+i][4*y+3]) and (bs[4*x+i][4*y] == ply):
+		        self.block_status[x][y] = ply
+		        return
+            if (bs[4*x][4*y+i] == bs[4*x+1][4*y+i] == bs[4*x+2][4*y+i] == bs[4*x+3][4*y+i]) and (bs[4*x][4*y+i] == ply):
+                self.block_status[x][y] = ply
+                return
 
-	if (bs[4*x][4*y] == bs[4*x+1][4*y+1] == bs[4*x+2][4*y+2] == bs[4*x+3][4*y+3]) and (bs[4*x][4*y] == ply):
-		self.block_status[x][y] = ply
-		return
-	if (bs[4*x+3][4*y] == bs[4*x+2][4*y+1] == bs[4*x+1][4*y+2] == bs[4*x][4*y+3]) and (bs[4*x+3][4*y] == ply):
-		self.block_status[x][y] = ply
-		return
+            if (bs[4*x][4*y] == bs[4*x+1][4*y+1] == bs[4*x+2][4*y+2] == bs[4*x+3][4*y+3]) and (bs[4*x][4*y] == ply):
+                self.block_status[x][y] = ply
+                return
+            if (bs[4*x+3][4*y] == bs[4*x+2][4*y+1] == bs[4*x+1][4*y+2] == bs[4*x][4*y+3]) and (bs[4*x+3][4*y] == ply):
+                self.block_status[x][y] = ply
+                return
 
-	for i in xrange(4):
-		for j in xrange(4):
-			if bs[4*x+i][4*y+j] =='-':
-				return
-	self.block_status[x][y] = 'd'
-	return
+        for i in xrange(4):
+            for j in xrange(4):
+                if bs[4*x+i][4*y+j] =='-':
+			    return
+        self.block_status[x][y] = 'd'
+        return
 
     def check_big(self):
 
-	bs = self.block_status
+        bs = self.block_status
     	for i in xrange(4):
-		if (bs[i][0] == bs[i][1] == bs[i][2] == bs[i][3]):
-			return bs[i][0]
-		if (bs[0][i] == bs[1][i] == bs[2][i] == bs[3][i]):
-                	return bs[0][i]
+            if (bs[i][0] == bs[i][1] == bs[i][2] == bs[i][3]):
+                return bs[i][0]
+            if (bs[0][i] == bs[1][i] == bs[2][i] == bs[3][i]):
+                return bs[0][i]
 
-	if (bs[0][0] == bs[1][1] == bs[2][2] == bs[3][3]):
-		return bs[0][0]
-	if (bs[3][0] == bs[2][1] == bs[1][2] == bs[0][3]):
-		return bs[3][0]
+        if (bs[0][0] == bs[1][1] == bs[2][2] == bs[3][3]):
+            return bs[0][0]
+        if (bs[3][0] == bs[2][1] == bs[1][2] == bs[0][3]):
+            return bs[3][0]
 
-	for i in xrange(4):
-		for j in xrange(4):
-			if bs[i][j] == '-':
-				return '-'
-	return 'd'
+        for i in xrange(4):
+            for j in xrange(4):
+                if bs[i][j] == '-':
+                    return '-'
+        return 'd'
+
 
     def play_a_game(self, cell, flag):
 
@@ -125,7 +127,7 @@ class MyPlayer():
         cb = self.check_big()
         if self.block_status[X][Y] == flag:
             if cb != '-':
-		return cb
+                return cb
         elif self.block_status[X][Y] == 'd':
             if cb == 'd':
                 return cb
@@ -154,7 +156,7 @@ class MyPlayer():
             if X == -1 and Y == -1:
                 X = random.randint(0,3)
                 Y = random.randint(0,3)
-		while self.block_status[X][Y] != '-':
+                while self.block_status[X][Y] != '-':
                     X = random.randint(0,3)
                     Y = random.randint(0,3)
 
@@ -173,7 +175,7 @@ class MyPlayer():
             cb = self.check_big()
             if self.block_status[X][Y] == revflag:
                 if cb != '-':
-		    return cb
+                    return cb
             elif self.block_status[X][Y] == 'd':
                 if cb == 'd':
                     return cb
@@ -202,8 +204,8 @@ class MyPlayer():
                     Y = random.randint(0,3)
             x = random.randint(0,3)
             y = random.randint(0,3)
-            
-	    while self.board_status[4*X+x][4*Y+y] != '-':
+
+            while self.board_status[4*X+x][4*Y+y] != '-':
                 x = random.randint(0,3)
                 y = random.randint(0,3)
             #---------------------------------------
@@ -215,7 +217,7 @@ class MyPlayer():
             cb = self.check_big()
             if self.block_status[X][Y] == flag:
                 if cb != '-':
-		    return cb
+                    return cb
             elif self.block_status[X][Y] == 'd':
                 if cb == 'd':
                     return cb
@@ -236,7 +238,7 @@ class MyPlayer():
     def move(self, board, old_move, flag):
 
         cells = board.find_valid_move_cells(old_move)
-        time_per_cell = 1000000 * 13.0 / len(cells)
+        time_per_cell = 1000000 * 13.5 / len(cells)
         wins = 0
         loses = 0
         ties = 0
@@ -248,8 +250,8 @@ class MyPlayer():
         self.deep_copied_board_status = copy.deepcopy(board.board_status)
         self.deep_copied_block_status = copy.deepcopy(board.block_status)
 
-	best_prob = 0.0
-	best_cell = None
+        best_prob = 0.0
+        best_cell = None
 
         for cell in cells:
             wins = 0
@@ -260,8 +262,8 @@ class MyPlayer():
 
             while time.time()*1000000 - start_time < time_per_cell:
 
-                self.board_status = copy.deepcopy(board.board_status)
-                self.block_status = copy.deepcopy(board.block_status)
+                self.board_status = self.deepcopy(board.board_status)
+                self.block_status = self.deepcopy(board.block_status)
                 res = self.play_a_game(cell, flag)
                 if res == flag:
                     wins += 1
@@ -271,11 +273,13 @@ class MyPlayer():
                     ties += 1
                 else:
                     raise "kaik problem chhe"
-	    prob = wins / (wins+loses+ties)
-	    if prob > best_prob:
-		best_prob = prob
-		best_cell = cell
 
-	    print wins, loses, ties
+            prob = 1.0*wins / (wins+loses+ties)
 
-        return cell
+            if prob > best_prob:
+                best_prob = prob
+                best_cell = cell
+            #print cell, prob, best_cell, best_prob
+            #print wins, loses, ties
+        print best_prob, best_cell
+        return best_cell

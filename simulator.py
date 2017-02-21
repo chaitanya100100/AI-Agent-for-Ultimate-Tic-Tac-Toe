@@ -30,7 +30,7 @@ class Manual_Player:
 		print 'Enter your move: <format:row column> (you\'re playing with', flag + ")"
 		mvp = raw_input()
 		mvp = mvp.split()
-		return (int(mvp[0]), int(mvp[1]))
+		return (int(mvp[0])*4+int(mvp[2]), int(mvp[1])*4+int(mvp[3]))
 
 class Board:
 
@@ -304,7 +304,8 @@ if __name__ == '__main__':
 		print '                2 => Human vs. Random Player'
 		print '                3 => Human vs. Human'
 		print '                4 => My vs. Random'
-		print '                4 => My vs. My'
+		print '                5 => My vs. My'
+		print '                6 => My vs. Human'
 		sys.exit(1)
 
 	obj1 = ''
@@ -325,6 +326,9 @@ if __name__ == '__main__':
 	elif option == '5':
 		obj1 = MyPlayer()
 		obj2 = MyPlayer()
+	elif option == '6':
+		obj1 = MyPlayer()
+		obj2 = Manual_Player()
 	else:
 		print 'Invalid option'
 		sys.exit(1)
