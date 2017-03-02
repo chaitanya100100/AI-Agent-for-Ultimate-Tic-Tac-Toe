@@ -33,14 +33,6 @@ class MyPlayer():
 		print
 		print
 
-    def get_available_moves(self):
-        self.available_moves = [[[] for j in range(4)] for i in range(4)]
-        for i in range(16):
-            for j in range(16):
-                if self.board_status[i][j] == '-' and self.block_status[i/4][j/4] == '-':
-                    self.available_moves[i/4][j/4].append((i,j))
-        return
-
     def find_valid_move_cells(self, old_move):
         allowed_cells = []
         allowed_block = [old_move[0]%4, old_move[1]%4]
@@ -61,7 +53,6 @@ class MyPlayer():
         allowed_cells = []
         allowed_block = [old_move[0]%4, old_move[1]%4]
 
-        """
         if old_move != (-1,-1) and self.block_status[allowed_block[0]][allowed_block[1]] == '-':
             for i in range(4*allowed_block[0], 4*allowed_block[0]+4):
                 for j in range(4*allowed_block[1], 4*allowed_block[1]+4):
@@ -72,13 +63,6 @@ class MyPlayer():
                 for j in range(16):
                     if self.board_status[i][j] == '-' and self.block_status[i/4][j/4] == '-':
                         allowed_cells.append((i,j))
-        """
-        if old_move != (-1,-1) and self.block_status[allowed_block[0]][allowed_block[1]] == '-':
-            allowed_cells.extend(self.available_moves[allowed_block[0]][allowed_block[1]])
-        else:
-            for i in range(4):
-                for j in range(4):
-                    allowed_cells.extend(self.available_moves[i][j])
         #return allowed_cells
 
         #cells = self.find_valid_move_cells(old_move)
@@ -89,38 +73,28 @@ class MyPlayer():
         self.board_status[new_move[0]][new_move[1]] = ply
         x = new_move[0]/4
         y = new_move[1]/4
-        #print self.available_moves[x][y]
-        #print new_move
-        self.available_moves[x][y].remove((new_move[0], new_move[1]))
         bs = self.board_status
 
         for i in xrange(4):
-    	    if (bs[4*x+i][4*y] == bs[4*x+i][4*y+1] == bs[4*x+i][4*y+2] == bs[4*x+i][4*y+3] == ply):
+    	    if (bs[4*x+i][4*y] == bs[4*x+i][4*y+1] == bs[4*x+i][4*y+2] == bs[4*x+i][4*y+3]) and (bs[4*x+i][4*y] == ply):
+		        self.block_status[x][y] = ply
+		        return
+            if (bs[4*x][4*y+i] == bs[4*x+1][4*y+i] == bs[4*x+2][4*y+i] == bs[4*x+3][4*y+i]) and (bs[4*x][4*y+i] == ply):
                 self.block_status[x][y] = ply
-                del self.available_moves[x][y][:]
-                return
-            if (bs[4*x][4*y+i] == bs[4*x+1][4*y+i] == bs[4*x+2][4*y+i] == bs[4*x+3][4*y+i] == ply):
-                self.block_status[x][y] = ply
-                del self.available_moves[x][y][:]
                 return
 
-        if (bs[4*x][4*y] == bs[4*x+1][4*y+1] == bs[4*x+2][4*y+2] == bs[4*x+3][4*y+3] == ply):
-            self.block_status[x][y] = ply
-            del self.available_moves[x][y][:]
-            return
-        if (bs[4*x+3][4*y] == bs[4*x+2][4*y+1] == bs[4*x+1][4*y+2] == bs[4*x][4*y+3] == ply):
-            self.block_status[x][y] = ply
-            del self.available_moves[x][y][:]
-            return
+            if (bs[4*x][4*y] == bs[4*x+1][4*y+1] == bs[4*x+2][4*y+2] == bs[4*x+3][4*y+3]) and (bs[4*x][4*y] == ply):
+                self.block_status[x][y] = ply
+                return
+            if (bs[4*x+3][4*y] == bs[4*x+2][4*y+1] == bs[4*x+1][4*y+2] == bs[4*x][4*y+3]) and (bs[4*x+3][4*y] == ply):
+                self.block_status[x][y] = ply
+                return
 
-        #if any('-' in sublist for sublist in bs):
-        #    return
         for i in xrange(4):
             for j in xrange(4):
                 if bs[4*x+i][4*y+j] =='-':
-			        return
+			    return
         self.block_status[x][y] = 'd'
-        del self.available_moves[x][y][:]
         return
 
     def check_big(self):
@@ -158,12 +132,11 @@ class MyPlayer():
         # play first move and check for termination
         #---------------------------------------
         self.play_move(cell, flag)
+        cb = self.check_big()
         if self.block_status[X][Y] == flag:
-            cb = self.check_big()
             if cb != '-':
                 return cb
         elif self.block_status[X][Y] == 'd':
-            cb = self.check_big()
             if cb == 'd':
                 return cb
         #---------------------------------------
@@ -171,7 +144,7 @@ class MyPlayer():
 
         # main game loop
         #---------------------------------------
-        while 1:
+        while True:
             # decide loop's first play
             #---------------------------------------
             now_move = self.get_move((x, y))
@@ -184,12 +157,11 @@ class MyPlayer():
             # play loop's first play
             #---------------------------------------
             self.play_move([4*X+x, 4*Y+y], revflag)
+            cb = self.check_big()
             if self.block_status[X][Y] == revflag:
-                cb = self.check_big()
                 if cb != '-':
                     return cb
             elif self.block_status[X][Y] == 'd':
-                cb = self.check_big()
                 if cb == 'd':
                     return cb
             #---------------------------------------
@@ -206,12 +178,11 @@ class MyPlayer():
             # play loop's second play
             #---------------------------------------
             self.play_move([4*X+x, 4*Y+y], flag)
+            cb = self.check_big()
             if self.block_status[X][Y] == flag:
-                cb = self.check_big()
                 if cb != '-':
                     return cb
             elif self.block_status[X][Y] == 'd':
-                cb = self.check_big()
                 if cb == 'd':
                     return cb
             #---------------------------------------
@@ -231,8 +202,8 @@ class MyPlayer():
         else:
             revflag = 'o'
 
-        #self.deep_copied_board_status = copy.deepcopy(board.board_status)
-        #self.deep_copied_block_status = copy.deepcopy(board.block_status)
+        self.deep_copied_board_status = copy.deepcopy(board.board_status)
+        self.deep_copied_block_status = copy.deepcopy(board.block_status)
 
         best_prob = 0.0
         best_cell = None
@@ -248,7 +219,6 @@ class MyPlayer():
 
                 self.board_status = self.deepcopy(board.board_status)
                 self.block_status = self.deepcopy(board.block_status)
-                self.get_available_moves()
                 res = self.play_a_game(cell, flag)
                 if res == flag:
                     wins += 1
@@ -265,6 +235,6 @@ class MyPlayer():
                 best_prob = prob
                 best_cell = cell
             #print cell, prob, best_cell, best_prob
-            print wins, loses, ties, wins+loses+ties
+            print wins, loses, ties
         print best_prob, best_cell
         return best_cell
