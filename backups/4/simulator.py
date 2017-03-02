@@ -6,8 +6,6 @@ import copy
 
 from my import MyPlayer
 from vidit import vidit
-from P4 import player4
-from tirth import Player71
 
 class TimedOutExc(Exception):
 	pass
@@ -310,8 +308,6 @@ if __name__ == '__main__':
 		print '                5 => My vs. My'
 		print '                6 => My vs. Human'
 		print '                7 => My vs. Vidit'
-		print '                8 => My vs. Daksh'
-		print '                9 => My vs. Tirth'
 		sys.exit(1)
 
 	obj1 = ''
@@ -336,17 +332,8 @@ if __name__ == '__main__':
 		obj1 = MyPlayer()
 		obj2 = Manual_Player()
 	elif option == '7':
-		obj1 = MyPlayer()
-		obj2 = vidit()
-	elif option == '8':
-		obj1 = MyPlayer()
-		obj2 = player4()
-	elif option == '9':
-		obj1 = MyPlayer()
-		obj2 = Player71()
-	else:
-		print "invalid"
-		sys.exit(1)
+	    obj1 = MyPlayer()
+        obj2 = vidit()
 
 	x = gameplay(obj1, obj2)
 	print "Player 1 points:", x[0]
