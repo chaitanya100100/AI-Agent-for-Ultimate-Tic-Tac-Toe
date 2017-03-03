@@ -3,6 +3,7 @@ import random
 import signal
 import time
 import copy
+from operator import itemgetter
 
 class MyPlayer():
 
@@ -12,8 +13,8 @@ class MyPlayer():
         self.hor = [ 5, 6, 7, 8]
         self.ver = [ 9, 10, 11, 12]
         self.dia = [ 13, 14]
-        self.my_constants = [ 0, 2, 10, 50, 300 ]
-        self.his_constants = [ 0, 2, 10, 50, 300 ]
+        self.my_constants = [ 0, 2, 15, 70, 300 ]
+        self.his_constants = [ 0, 2, 15, 70, 300 ]
 
     def print_board(self):
 		# for printing the state of the board
@@ -208,7 +209,7 @@ class MyPlayer():
         # choose according to utility
         #---------------------------------------
 
-        utility_arr = [0 for i in xrange(len(allowed_cells))]
+        utility_arr = [(0, 0) for i in xrange(len(allowed_cells))]
         hor = self.hor
         ver = self.ver
         dia = self.dia
@@ -272,7 +273,7 @@ class MyPlayer():
 
             if final_ut < mi:
                 mi = final_ut
-            utility_arr[count] = final_ut
+            utility_arr[count] = (final_ut, count)
             total += final_ut
             count += 1
 
@@ -280,17 +281,16 @@ class MyPlayer():
         rand_number = random.randint(0, total - mi*le)
         total = 0
         count = 0
+	utility_arr = sorted(utility_arr, reverse=True)	
+	maxi7 = 0.5*utility_arr[0][0]
         for u in utility_arr:
-            total += u - mi
-            if total >= rand_number:
-                break
-            count += 1
+	    if u[0] < maxi7:
+		break
+	    count+=1
         #---------------------------------------
         if count >= le:
             count = le - 1
-        print utility_arr
-        print utility_arr[count]
-        return allowed_cells[count]
+        return allowed_cells[utility_arr[random.randint(0,count)][1]]
 
 
     def play_move(self, new_move, ply):

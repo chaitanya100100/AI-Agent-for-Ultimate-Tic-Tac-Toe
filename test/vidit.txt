@@ -1,0 +1,169 @@
+==============Board State==============
+
+ x - x o  o o o o  - - - -  o x - x
+ x o x -  - - - -  o o - x  x o o x
+ o - x -  - - - -  o o o o  - - - x
+ - - x -  x - x -  x - x -  x x x o
+
+ - x x o  o - o x  o - - -  - o - o
+ o x x x  x - x -  o x x -  o - - o
+ o o o x  x x - -  o - - o  o o - -
+ - x - -  x - - o  o - - -  - x x o
+
+ x x x o  x x x o  - - - o  - x - -
+ - - o x  o - x o  o o - -  - x - -
+ - - - -  - o - x  o o x o  - x - x
+ x x x x  - - x o  x x - x  o x - o
+
+ o x x o  o x - -  - - - -  - - o x
+ o - x -  - o - -  - - - -  x o x x
+ o o - o  - - o -  o o o o  - x x -
+ o x - -  - o - o  - - - -  x - - o
+
+==============Block State==============
+x o o -
+- x o -
+x - - x
+o o o x
+=======================================
+
+
+0 0 2 1 0
+1 1 2 1
+2 1 0 2
+3 0
+105
+
+0 0 1 1 0
+2 1 0 3
+1 2 3 0
+0 2
+90
+
+2787 616 178 3581
+2678 576 179 3433
+846 2734 253 3833
+2791 645 151 3587
+2815 592 185 3592
+0.792174269969 (11, 5)
+('CONTINUE', '-')
+==============Board State==============
+
+ x - x o  o o o o  - - - -  o x - x
+ x o x -  - - - -  o o - x  x o o x
+ o - x -  - - - -  o o o o  - - - x
+ - - x -  x - x -  x - x -  x x x o
+
+ - x x o  o - o x  o - - -  - o - o
+ o x x x  x - x -  o x x -  o - - o
+ o o o x  x x - -  o - - o  o o - -
+ - x - -  x - - o  o - - -  - x x o
+
+ x x x o  x x x o  - - - o  - x - -
+ - - o x  o - x o  o o - -  - x - -
+ - - - -  - o - x  o o x o  - x - x
+ x x x x  - x x o  x x - x  o x - o
+
+ o x x o  o x - -  - - - -  - - o x
+ o - x -  - o - -  - - - -  x o x x
+ o o - o  - - o -  o o o o  - x x -
+ o x - -  - o - o  - - - -  x - - o
+
+==============Block State==============
+x o o -
+- x o -
+x - - x
+o o o x
+=======================================
+
+
+3
+4
+5
+(2, 14)
+('CONTINUE', '-')
+==============Board State==============
+
+ x - x o  o o o o  - - - -  o x - x
+ x o x -  - - - -  o o - x  x o o x
+ o - x -  - - - -  o o o o  - - o x
+ - - x -  x - x -  x - x -  x x x o
+
+ - x x o  o - o x  o - - -  - o - o
+ o x x x  x - x -  o x x -  o - - o
+ o o o x  x x - -  o - - o  o o - -
+ - x - -  x - - o  o - - -  - x x o
+
+ x x x o  x x x o  - - - o  - x - -
+ - - o x  o - x o  o o - -  - x - -
+ - - - -  - o - x  o o x o  - x - x
+ x x x x  - x x o  x x - x  o x - o
+
+ o x x o  o x - -  - - - -  - - o x
+ o - x -  - o - -  - - - -  x o x x
+ o o - o  - - o -  o o o o  - x x -
+ o x - -  - o - o  - - - -  x - - o
+
+==============Block State==============
+x o o o
+- x o -
+x - - x
+o o o x
+=======================================
+
+
+0 0 1 1 0
+1 1 2 1
+2 1 0 2
+3 0
+90
+
+0 0 0 2 0
+3 1 0 3
+1 2 3 1
+0 3
+150
+
+2195 511 328 3034
+2156 523 345 3024
+2141 534 347 3022
+1950 195 696 2841
+2083 192 781 3056
+4271 0 0 4271
+1.0 (11, 10)
+('x', 'WON')
+==============Board State==============
+
+ x - x o  o o o o  - - - -  o x - x
+ x o x -  - - - -  o o - x  x o o x
+ o - x -  - - - -  o o o o  - - o x
+ - - x -  x - x -  x - x -  x x x o
+
+ - x x o  o - o x  o - - -  - o - o
+ o x x x  x - x -  o x x -  o - - o
+ o o o x  x x - -  o - - o  o o - -
+ - x - -  x - - o  o - - -  - x x o
+
+ x x x o  x x x o  - - - o  - x - -
+ - - o x  o - x o  o o - -  - x - -
+ - - - -  - o - x  o o x o  - x - x
+ x x x x  - x x o  x x x x  o x - o
+
+ o x x o  o x - -  - - - -  - - o x
+ o - x -  - o - -  - - - -  x o x x
+ o o - o  - - o -  o o o o  - x x -
+ o x - -  - o - o  - - - -  x - - o
+
+==============Block State==============
+x o o o
+- x o -
+x - x x
+o o o x
+=======================================
+
+
+Winner: P1
+Message WON
+x: 6  o: 7  d: 0
+Player 1 points: 16
+Player 2 points: 0

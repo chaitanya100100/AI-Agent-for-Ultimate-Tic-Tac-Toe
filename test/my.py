@@ -3,6 +3,7 @@ import random
 import signal
 import time
 import copy
+import math
 
 class MyPlayer():
 
@@ -12,8 +13,9 @@ class MyPlayer():
         self.hor = [ 5, 6, 7, 8]
         self.ver = [ 9, 10, 11, 12]
         self.dia = [ 13, 14]
-        self.my_constants = [ 0, 2, 10, 50, 300 ]
-        self.his_constants = [ 0, 2, 10, 50, 300 ]
+        self.my_constants = [ 0, 5, 40, 200, 3000 ]
+        self.his_constants = [ 0, 5, 40, 200, 3000 ]
+        self.max_level = 20
 
     def print_board(self):
 		# for printing the state of the board
@@ -64,6 +66,39 @@ class MyPlayer():
                 print "-------", hu[bi][bj],"----------"
                 print
 
+    def print_board_utility(self):
+        for k in range(15):
+            if k % 4 == 1 and k != 1:
+                print
+            print self.my_board_utility_params_dc[k],
+        print
+        print self.my_board_utility_dc
+        print
+        for i in range(4):
+            for j in range(4):
+                print self.my_utility_dc[i][j],
+            print
+        print
+
+        for k in range(15):
+            if k % 4 == 1 and k != 1:
+                print
+            print self.his_board_utility_params_dc[k],
+        print
+        print self.his_board_utility_dc
+        print
+        for i in range(4):
+            for j in range(4):
+                print self.his_utility_dc[i][j],
+            print
+        print
+
+        for i in range(4):
+            for j in range(4):
+                print self.my_utility_dc[i][j],
+            print
+        print
+        print
 
     def get_available_moves(self):
         self.available_moves = [[[] for j in range(4)] for i in range(4)]
@@ -78,11 +113,20 @@ class MyPlayer():
         self.his_utility_params_dc = [ [ [ 0 for k in range(15) ] for j in range(4)] for i in range(4)]
         self.my_utility_dc = [ [ 0 for j in range(4) ] for i in range(4)]
         self.his_utility_dc = [ [ 0 for j in range(4) ] for i in range(4)]
+
+        self.my_board_utility_params_dc = [ 0 for k in range(15) ]
+        self.his_board_utility_params_dc = [ 0 for k in range(15) ]
+        self.my_board_utility_dc = 0
+        self.his_board_utility_dc = 0
+
         bs = self.deep_copied_board_status
+        bos = self.deep_copied_block_status
         mup = self.my_utility_params_dc
         hup = self.his_utility_params_dc
         mu = self.my_utility_dc
         hu = self.his_utility_dc
+        mbup = self.my_board_utility_params_dc
+        hbup = self.his_board_utility_params_dc
 
         hor = self.hor
         ver = self.ver
@@ -95,6 +139,9 @@ class MyPlayer():
             for j in range(4):
                 x = 4*i
                 y = 4*j
+                if self.deep_copied_block_status[i][j] != '-':
+                    mu[i][j] = 1000
+                    hu[i][j] = 1000
                 for a in range(4):
                     for b in range(4):
 
@@ -126,6 +173,36 @@ class MyPlayer():
                 mu[i][j] = my_constants[0] * mup[i][j][0] + my_constants[1] * mup[i][j][1] + my_constants[2] * mup[i][j][2] + my_constants[3] * mup[i][j][3] + my_constants[4] * mup[i][j][4]
                 hu[i][j] = his_constants[0] * hup[i][j][0] + his_constants[1] * hup[i][j][1] + his_constants[2] * hup[i][j][2] + his_constants[3] * hup[i][j][3] + his_constants[4] * hup[i][j][4]
 
+        for i in range(4):
+            for j in range(4):
+                if bos[i][j] == flag:
+                    mbup[hor[i]] += 1
+                    mbup[ver[j]] += 1
+
+                    if i == j:
+                        mbup[dia[0]] += 1
+                    elif i+j == 3:
+                        mbup[dia[1]] += 1
+
+                elif bos[i][j] == revflag:
+                    hbup[hor[i]] += 1
+                    hbup[ver[j]] += 1
+
+                    if i == j:
+                        hbup[dia[0]] += 1
+                    elif i+j == 3:
+                        hbup[dia[1]] += 1
+
+        for k in range(5, 15):
+            if not hbup[k]:
+                mbup[ mbup[k] ] += 1
+            if not mbup[k]:
+                hbup[ hbup[k] ] += 1
+
+
+        self.my_board_utility_dc = my_constants[0] * mbup[0] + my_constants[1] * mbup[1] + my_constants[2] * mbup[2] + my_constants[3] * mbup[3] + my_constants[4] * mbup[4]
+        self.his_board_utility_dc = his_constants[0] * hbup[0] + his_constants[1] * hbup[1] + his_constants[2] * hbup[2] + his_constants[3] * hbup[3] + his_constants[4] * hbup[4]
+
 
     def find_valid_move_cells(self, old_move):
         allowed_cells = []
@@ -143,6 +220,26 @@ class MyPlayer():
                         allowed_cells.append((i,j))
         return allowed_cells
 
+    def update_board_utility(self, mbup, hbup, flag, par):
+        if not hbup[par]:
+            if flag == self.my_main_flag:
+                self.my_board_utility += self.my_constants[mbup[par] + 1] - self.my_constants[mbup[par]]
+            else:
+                self.his_board_utility += self.his_constants[mbup[par] + 1] - self.his_constants[mbup[par]]
+        if not mbup[par]:
+            if flag == self.my_main_flag:
+                self.his_board_utility -= self.his_constants[hbup[par]]
+            else:
+                self.my_board_utility -= self.my_constants[hbup[par]]
+
+    def update_board_utility_tie(self, mbup, hbup, flag, par):
+        if flag == self.my_main_flag:
+            self.my_board_utility -= self.my_constants[mbup[par]]
+            self.his_board_utility -= self.his_constants[hbup[par]]
+        else:
+            self.my_board_utility -= self.my_constants[hbup[par]]
+            self.his_board_utility -= self.his_constants[mbup[par]]
+
 
     def update_utility(self, move, flag):
         x = move[0]/4
@@ -157,6 +254,8 @@ class MyPlayer():
             hup = self.his_utility_params
             mu = self.my_utility
             hu = self.his_utility
+            mbup = self.my_board_utility_params_dc
+            hbup = self.his_board_utility_params_dc
             my_constants = self.my_constants
             his_constants = self.his_constants
         else:
@@ -164,8 +263,32 @@ class MyPlayer():
             mup = self.his_utility_params
             hu = self.my_utility
             mu = self.his_utility
+            hbup = self.my_board_utility_params_dc
+            mbup = self.his_board_utility_params_dc
             his_constants = self.my_constants
             my_constants = self.his_constants
+
+        if self.block_status[x][y] != '-':
+            self.my_utility[x][y] = 1000
+            self.his_utility[x][y] = 1000
+            if self.block_status[x][y] == flag:
+                self.update_board_utility(mbup, hbup, flag, hor[x])
+                self.update_board_utility(mbup, hbup, flag, ver[y])
+                if x==y:
+                    self.update_board_utility(mbup, hbup, flag, dia[0])
+                elif x+y==3:
+                    self.update_board_utility(mbup, hbup, flag, dia[1])
+            elif self.block_status[x][y] == 'd':
+                self.update_board_utility_tie(mbup, hbup, flag, hor[x])
+                self.update_board_utility_tie(mbup, hbup, flag, ver[y])
+                if x==y:
+                    self.update_board_utility_tie(mbup, hbup, flag, dia[0])
+                elif x+y==3:
+                    self.update_board_utility_tie(mbup, hbup, flag, dia[1])
+            else:
+                print "some logic problem"
+            return
+
 
         if not hup[x][y][hor[i]]:
             mu[x][y] += my_constants[mup[x][y][hor[i]] + 1] - my_constants[mup[x][y][hor[i]]]
@@ -193,7 +316,9 @@ class MyPlayer():
             mup[x][y][dia[1]] += 1
 
 
-    def get_move(self, old_move, flag):
+
+
+    def get_move(self, old_move, flag, play_random):
         allowed_cells = []
         allowed_block = [old_move[0]%4, old_move[1]%4]
 
@@ -204,11 +329,13 @@ class MyPlayer():
                 for j in range(4):
                     allowed_cells.extend(self.available_moves[i][j])
 
+        if play_random:
+            return allowed_cells[ random.randint( 0, len(allowed_cells)-1 ) ]
 
         # choose according to utility
         #---------------------------------------
 
-        utility_arr = [0 for i in xrange(len(allowed_cells))]
+        utility_arr = [(0,0) for i in xrange(len(allowed_cells))]
         hor = self.hor
         ver = self.ver
         dia = self.dia
@@ -218,19 +345,27 @@ class MyPlayer():
             hup = self.his_utility_params
             mu = self.my_utility
             hu = self.his_utility
+            mbup = self.my_board_utility_params
+            hbup = self.his_board_utility_params
             my_constants = self.my_constants
             his_constants = self.his_constants
+            mbu = self.my_board_utility
+            hbu = self.his_board_utility
         else:
             hup = self.my_utility_params
             mup = self.his_utility_params
             hu = self.my_utility
             mu = self.his_utility
+            hbup = self.my_board_utility_params
+            mbup = self.his_board_utility_params
             his_constants = self.my_constants
             my_constants = self.his_constants
+            hbu = self.my_board_utility
+            mbu = self.his_board_utility
 
         count = 0
-        total = 0
-        mi = 1000000000
+        #total = 0
+        #mi = 1000000000
         for i, j in allowed_cells:
             x = i/4
             y = j/4
@@ -261,22 +396,26 @@ class MyPlayer():
                     his_ut -= his_constants[hup[x][y][dia[1]]]
 
             if self.block_status[i][j] != '-':
-                his_max = -1000000
-                for p in range(4):
-                    for q in range(4):
-                        if hu[p][q]> his_max:
-                            his_max = hu[p][q]
-                final_ut = 30*(my_ut - mu[x][y]) + 30*(hu[x][y] - his_ut) - 2*his_max
+                final_ut = 30 * (my_ut - mu[x][y]) - 80 * hbu
             else:
-                final_ut = 30*(my_ut - mu[x][y]) + 30*(hu[x][y] - his_ut) - 2*hu[i][j]
+                c = 1
+                if mbup[hor[i]]:
+                    c += his_constants[hbup[hor[i]]]
+                if mbup[ver[j]]:
+                    c += his_constants[hbup[ver[j]]]
+                if i==j:
+                    c += his_constants[hbup[dia[0]]]
+                elif i+j==3:
+                    c += his_constants[hbup[dia[1]]]
+                final_ut = 30 * (my_ut - mu[x][y]) + 5*(hu[x][y] - his_ut) - 7 * int(math.sqrt(c * hu[i][j]))
 
-            if final_ut < mi:
-                mi = final_ut
-            utility_arr[count] = final_ut
-            total += final_ut
+            #if final_ut < mi:
+            #    mi = final_ut
+            utility_arr[count] = (final_ut, count)
+            #total += final_ut
             count += 1
-
         le = len(allowed_cells)
+        """
         rand_number = random.randint(0, total - mi*le)
         total = 0
         count = 0
@@ -285,17 +424,26 @@ class MyPlayer():
             if total >= rand_number:
                 break
             count += 1
+        """
+        utility_arr = sorted(utility_arr, reverse=True)
+        maxi7 = utility_arr[0][0] * 0.5
+        count = 0
+        for u in utility_arr:
+            if u[0] < maxi7:
+                break
+            count += 1
+
         #---------------------------------------
         if count >= le:
             count = le - 1
-        print utility_arr
-        print utility_arr[count]
-        return allowed_cells[count]
+        #print utility_arr
+        #print utility_arr[count]
+        return allowed_cells[utility_arr[random.randint(0,count)][1]]
+
 
 
     def play_move(self, new_move, ply):
         self.board_status[new_move[0]][new_move[1]] = ply
-        self.update_utility(new_move, ply)
         x = new_move[0]/4
         y = new_move[1]/4
         x4 = 4*x
@@ -307,27 +455,33 @@ class MyPlayer():
     	    if (bs[x4+i][y4] == bs[x4+i][y4+1] == bs[x4+i][y4+2] == bs[x4+i][y4+3] == ply):
                 self.block_status[x][y] = ply
                 del self.available_moves[x][y][:]
+                self.update_utility(new_move, ply)
                 return
             if (bs[x4][y4+i] == bs[x4+1][y4+i] == bs[x4+2][y4+i] == bs[x4+3][y4+i] == ply):
                 self.block_status[x][y] = ply
                 del self.available_moves[x][y][:]
+                self.update_utility(new_move, ply)
                 return
 
         if (bs[x4][y4] == bs[x4+1][y4+1] == bs[x4+2][y4+2] == bs[x4+3][y4+3] == ply):
             self.block_status[x][y] = ply
             del self.available_moves[x][y][:]
+            self.update_utility(new_move, ply)
             return
         if (bs[x4+3][y4] == bs[x4+2][y4+1] == bs[x4+1][y4+2] == bs[x4][y4+3] == ply):
             self.block_status[x][y] = ply
             del self.available_moves[x][y][:]
+            self.update_utility(new_move, ply)
             return
 
         for i in xrange(4):
             for j in xrange(4):
                 if bs[x4+i][y4+j] =='-':
-			        return
+                    self.update_utility(new_move, ply)
+                    return
         self.block_status[x][y] = 'd'
         del self.available_moves[x][y][:]
+        self.update_utility(new_move, ply)
         return
 
     def check_big(self):
@@ -375,13 +529,16 @@ class MyPlayer():
                 return cb
         #---------------------------------------
 
-
+        level = 0
+        play_random = False
         # main game loop
         #---------------------------------------
         while 1:
+            if level > self.max_level:
+                play_random = True
             # decide loop's first play
             #---------------------------------------
-            now_move = self.get_move((x, y), revflag)
+            now_move = self.get_move((x, y), revflag, play_random)
             X = now_move[0]/4
             Y = now_move[1]/4
             x = now_move[0]%4
@@ -403,7 +560,7 @@ class MyPlayer():
 
             # decide loop's second play
             #---------------------------------------
-            now_move = self.get_move((x, y), flag)
+            now_move = self.get_move((x, y), flag, play_random)
             X = now_move[0]/4
             Y = now_move[1]/4
             x = now_move[0]%4
@@ -421,6 +578,7 @@ class MyPlayer():
                 cb = self.check_big()
                 if cb == 'd':
                     return cb
+            level += 2
             #---------------------------------------
 
     def move(self, board, old_move, flag):
@@ -444,14 +602,19 @@ class MyPlayer():
 
         self.init_utility(flag, revflag)
         # self.print_utility(flag, revflag)
+        self.print_board_utility()
 
         best_prob = -0.01
         best_cell = None
+
+        point_best_prob = -0.01
+        point_best_cell = None
 
         for cell in cells:
             wins = 0
             loses = 0
             ties = 0
+            tie_points = 0
 
             start_time = time.time()*1000000
 
@@ -464,6 +627,11 @@ class MyPlayer():
                 self.my_utility_params = self.deepcopy(self.my_utility_params_dc)
                 self.his_utility_params = self.deepcopy(self.his_utility_params_dc)
 
+                self.my_board_utility_params = self.deepcopy(self.my_board_utility_params_dc)
+                self.his_board_utility_params = self.deepcopy(self.his_board_utility_params_dc)
+                self.my_board_utility = self.my_board_utility_dc
+                self.his_board_utility = self.his_board_utility_dc
+
                 self.get_available_moves()
                 res = self.play_a_game(cell, flag)
                 if res == flag:
@@ -472,15 +640,27 @@ class MyPlayer():
                     loses += 1
                 elif res == 'd':
                     ties += 1
+                    for i in range(4):
+                        for j in range(4):
+                            if self.block_status[i][j] == flag:
+                                tie_points += 1
                 else:
                     raise "kaik problem chhe"
-            tot = wins + ties + loses
-            prob = (1.0*wins) / tot + (1.0*loses*ties) / (tot*tot)
+            tot = 16*wins + tie_points
+            prob = 1.0 * wins / (wins + loses + ties)
+            point_prob = 1.0*tot / (wins + loses + ties)
 
             if prob > best_prob:
                 best_prob = prob
                 best_cell = cell
+            if point_prob > point_best_prob:
+                point_best_prob = point_prob
+                point_best_cell = cell
             #print cell, prob, best_cell, best_prob
             print wins, loses, ties, wins+loses+ties
-        print best_prob, best_cell
+        print best_prob, best_cell, point_best_prob, point_best_cell
+
+        if best_prob <= 0.05:
+            best_cell = point_best_cell
+
         return best_cell
